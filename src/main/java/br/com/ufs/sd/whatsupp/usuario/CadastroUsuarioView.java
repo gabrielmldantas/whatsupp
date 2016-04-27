@@ -10,7 +10,7 @@ import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import br.com.ufs.sd.whatsupp.infra.RabbitChatException;
+import br.com.ufs.sd.whatsupp.infra.WhatsuppException;
 
 @Named
 @ViewScoped
@@ -39,7 +39,7 @@ public class CadastroUsuarioView implements Serializable {
 			usuarioService.cadastrarUsuario(usuario);
 			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Usuário criado com sucesso", ""));
 			return "/login.jsf?faces-redirect=true";
-		} catch (RabbitChatException e) {
+		} catch (WhatsuppException e) {
 			e.printStackTrace();
 			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, e.getMessage(), ""));
 			return "/cadastro.jsf";

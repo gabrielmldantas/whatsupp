@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
 	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
 	xmlns:p="http://primefaces.org/ui"
 	template="/WEB-INF/xhtml/templates/baseLayout.xhtml">
@@ -8,17 +9,29 @@
 	<ui:define name="content">
 		<p:layoutUnit position="west" size="400">
 			<p:commandLink onclick="PF('contatosDlg').show(); return false;" value="Contatos"/>
-			<p:dataTable>
+			<p:dataTable id="conversas">
 			</p:dataTable>
 		</p:layoutUnit>
 		<p:layoutUnit position="center">
 		</p:layoutUnit>
 		
 		<p:dialog header="Contatos" widgetVar="contatosDlg" modal="true" height="400" width="300">
-			<h:form>
-				Botão adicionar contato
-				<p:dataTable>
+			<h:form id="formContatos">
+				<h:graphicImage library="img" name="add-contact.png" style="cursor: pointer" onclick="PF('adicionarContatoDlg').show();"/>
+				<p:dataTable value="#{chatView.contatos}" var="row">
+					<f:facet name="header"></f:facet>
+					<p:column filterBy="#{row.nome}">
+						<h:outputText value="#{row.nome}" />
+					</p:column>
 				</p:dataTable>
+			</h:form>
+		</p:dialog>
+		
+		<p:dialog header="Adicionar Contato" widgetVar="adicionarContatoDlg" modal="true" height="200" width="300">
+			<h:form>
+				<h:outputLabel for="login" value="Usuário" />
+				<p:inputText id="login" label="Usuário" value="#{chatView.loginNovoContato}" required="true" style="display: block"/>
+				<p:commandButton value="Adicionar" action="#{chatView.adicionarContato}" update="@form :conversas :formContatos" /> 
 			</h:form>
 		</p:dialog>
 	</ui:define>

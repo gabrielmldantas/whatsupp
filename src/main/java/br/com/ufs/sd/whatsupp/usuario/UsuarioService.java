@@ -12,7 +12,7 @@ import javax.sql.DataSource;
 import org.apache.commons.codec.digest.DigestUtils;
 
 import br.com.ufs.sd.whatsupp.infra.RabbitChatDS;
-import br.com.ufs.sd.whatsupp.infra.RabbitChatException;
+import br.com.ufs.sd.whatsupp.infra.WhatsuppException;
 
 public class UsuarioService implements Serializable {
 	private static final long serialVersionUID = 1L;
@@ -29,7 +29,7 @@ public class UsuarioService implements Serializable {
 			ps.executeUpdate();
 			ps.close();
 		} catch (SQLException e) {
-			throw new RabbitChatException(e);
+			throw new WhatsuppException(e);
 		}
 	}
 	
@@ -43,7 +43,39 @@ public class UsuarioService implements Serializable {
 			ps.close();
 			return existe;
 		} catch (SQLException e) {
-			throw new RabbitChatException(e);
+			throw new WhatsuppException(e);
+		}
+	}
+	
+	public void adicionarContato(int idUsuario, String loginNovoContato) {
+		try (Connection connection = dataSource.getConnection()) {
+			PreparedStatement ps = connection.prepareStatement("SELECT u.id_usuario, "
+					+ "COALESCE((SELECT 1 FROM tb_contato c WHERE c.id_contato = u.id_usuario AND c.id_usuario = ?), 0) AS existe "
+					+ "FROM tb_usuario u "
+					+ "WHERE u.ds_login = ?");
+			ps.setInt(1, idUsuario);
+			ps.setString(2, loginNovoContato);
+			ResultSet rs = ps.executeQuery();
+			Integer idContato = null;
+			boolean existe = false;
+			if (rs.next()) {
+				idContato = rs.getInt("id_usuario");
+				existe = rs.getInt("existe") != 0;
+			}
+			rs.close();
+			ps.close();
+			if (existe) {
+				throw new WhatsuppException("Contato já existe");
+			}
+			if (idContato == null) {
+				throw new WhatsuppException("Contato não existe");
+			}
+			ps = connection.prepareStatement("INSERT INTO tb_contato (id_usuario, id_contato) VALUES (?, ?)");
+			ps.setInt(1, idUsuario);
+			ps.setInt(2, idContato);
+			ps.executeUpdate();
+		} catch (SQLException e) {
+			throw new WhatsuppException(e);
 		}
 	}
 }

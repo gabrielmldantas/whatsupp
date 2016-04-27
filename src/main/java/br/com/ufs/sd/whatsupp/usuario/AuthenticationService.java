@@ -14,7 +14,7 @@ import javax.sql.DataSource;
 import org.apache.commons.codec.digest.DigestUtils;
 
 import br.com.ufs.sd.whatsupp.infra.RabbitChatDS;
-import br.com.ufs.sd.whatsupp.infra.RabbitChatException;
+import br.com.ufs.sd.whatsupp.infra.WhatsuppException;
 
 public class AuthenticationService implements Serializable {
 	private static final long serialVersionUID = 1L;
@@ -38,11 +38,11 @@ public class AuthenticationService implements Serializable {
 			rs.close();
 			ps.close();
 			if (usuario == null) {
-				throw new RabbitChatException("Usuário ou senha inválidos");
+				throw new WhatsuppException("Usuário ou senha inválidos");
 			}
 			return usuario;
 		} catch (SQLException e) {
-			throw new RabbitChatException(e);
+			throw new WhatsuppException(e);
 		}
 	}
 	

@@ -8,7 +8,7 @@ import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import br.com.ufs.sd.whatsupp.infra.RabbitChatException;
+import br.com.ufs.sd.whatsupp.infra.WhatsuppException;
 
 @Named
 @ViewScoped
@@ -44,7 +44,7 @@ public class LoginView implements Serializable {
 			Usuario usuario = authenticationService.authenticate(login, senha);
 			userSessionView.setUsuario(usuario);
 			return "/index.jsf?faces-redirect=true";
-		} catch (RabbitChatException e) {
+		} catch (WhatsuppException e) {
 			e.printStackTrace();
 			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, e.getMessage(), ""));
 			return "/login.jsf";
