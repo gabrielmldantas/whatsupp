@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+	<h:outputStylesheet library="css" name="padrao.css" />
+</h:head>
+<h:body>
+	<h:form>
+		<p:ajaxStatus />
+		<p:growl id="msgs" showDetail="true" autoUpdate="true" />
+	</h:form>
+	<p:layout fullPage="true">
+		<p:layoutUnit position="north" size="80">
+			<div style="text-align: center">
+				<h:outputText value="Rabbit Chat Web" />
+			</div>
+			<ui:fragment rendered="#{userSessionView.logado}">
+				<div style="text-align: right">
+					<h:outputText value="Usuário: #{userSessionView.usuario.nome}" />
+					<h:form>
+						<h:commandLink value="Sair" action="#{loginView.logout}" />
+					</h:form>
+				</div>
+			</ui:fragment>
+		</p:layoutUnit>
+		<ui:insert name="content" />
+	</p:layout>
+</h:body>
+</html>

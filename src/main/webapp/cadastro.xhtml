@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	template="/WEB-INF/xhtml/templates/baseLayout.xhtml">
+
+	<ui:define name="content">
+		<p:layoutUnit position="center">
+			<p:panel header="Cadastro" styleClass="center" style="width: 400px; height: 250px">
+				<h:form>
+					<h:outputLabel for="login" value="Usuário" />
+					<p:inputText id="login" label="Usuário" value="#{cadastroUsuarioView.usuario.login}" required="true" style="display: block">
+						<p:ajax event="blur" listener="#{cadastroUsuarioView.validarLogin}" update="login"/>
+					</p:inputText>
+					<h:outputLabel for="nome" value="Nome" />
+					<p:inputText id="nome" label="Nome" value="#{cadastroUsuarioView.usuario.nome}" required="true" style="display: block"/>
+					<h:outputLabel for="senha" value="Senha" />
+					<p:password id="senha" label="Senha" value="#{cadastroUsuarioView.usuario.senha}" required="true" style="display: block"/>
+					<p:commandButton value="Cadastrar" action="#{cadastroUsuarioView.cadastrar}" ajax="false" 
+						style="display: block; margin-top: 15px; margin-left: 140px"/>
+				</h:form>
+			</p:panel>
+		</p:layoutUnit>
+	</ui:define>
+
+</ui:composition>
