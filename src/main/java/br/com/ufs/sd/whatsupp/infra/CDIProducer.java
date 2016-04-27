@@ -1,4 +1,4 @@
-package br.com.ufs.sd.rabbitchat.infra;
+package br.com.ufs.sd.whatsupp.infra;
 
 import javax.annotation.Resource;
 import javax.enterprise.inject.Produces;

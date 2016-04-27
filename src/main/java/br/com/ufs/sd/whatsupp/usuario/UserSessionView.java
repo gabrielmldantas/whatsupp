@@ -1,4 +1,4 @@
-package br.com.ufs.sd.rabbitchat.usuario;
+package br.com.ufs.sd.whatsupp.usuario;
 
 import java.io.Serializable;
 

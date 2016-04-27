@@ -1,4 +1,4 @@
-package br.com.ufs.sd.rabbitchat.usuario;
+package br.com.ufs.sd.whatsupp.usuario;
 
 import java.io.Serializable;
 
@@ -10,7 +10,7 @@ import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import br.com.ufs.sd.rabbitchat.infra.RabbitChatException;
+import br.com.ufs.sd.whatsupp.infra.RabbitChatException;
 
 @Named
 @ViewScoped

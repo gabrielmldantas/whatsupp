@@ -1,4 +1,4 @@
-package br.com.ufs.sd.rabbitchat.infra;
+package br.com.ufs.sd.whatsupp.infra;
 
 public class RabbitChatException extends RuntimeException {
 	private static final long serialVersionUID = 1L;

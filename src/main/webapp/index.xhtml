@@ -6,8 +6,21 @@
 	template="/WEB-INF/xhtml/templates/baseLayout.xhtml">
 
 	<ui:define name="content">
+		<p:layoutUnit position="west" size="400">
+			<p:commandLink onclick="PF('contatosDlg').show(); return false;" value="Contatos"/>
+			<p:dataTable>
+			</p:dataTable>
+		</p:layoutUnit>
 		<p:layoutUnit position="center">
 		</p:layoutUnit>
+		
+		<p:dialog header="Contatos" widgetVar="contatosDlg" modal="true" height="400" width="300">
+			<h:form>
+				Botão adicionar contato
+				<p:dataTable>
+				</p:dataTable>
+			</h:form>
+		</p:dialog>
 	</ui:define>
 
 </ui:composition>

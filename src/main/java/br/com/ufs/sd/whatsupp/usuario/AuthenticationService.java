@@ -1,4 +1,4 @@
-package br.com.ufs.sd.rabbitchat.usuario;
+package br.com.ufs.sd.whatsupp.usuario;
 
 import java.io.Serializable;
 import java.sql.Connection;
@@ -13,8 +13,8 @@ import javax.sql.DataSource;
 
 import org.apache.commons.codec.digest.DigestUtils;
 
-import br.com.ufs.sd.rabbitchat.infra.RabbitChatDS;
-import br.com.ufs.sd.rabbitchat.infra.RabbitChatException;
+import br.com.ufs.sd.whatsupp.infra.RabbitChatDS;
+import br.com.ufs.sd.whatsupp.infra.RabbitChatException;
 
 public class AuthenticationService implements Serializable {
 	private static final long serialVersionUID = 1L;
