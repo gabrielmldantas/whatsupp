@@ -7,6 +7,6 @@ import javax.sql.DataSource;
 public class CDIProducer {
 	
 	@Produces
-	@Resource(name = "jdbc/RabbitChatWebDB")
+	@Resource(name = "jdbc/RabbitChatDB")
 	private DataSource dataSourceWeb;
 }
