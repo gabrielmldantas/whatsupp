@@ -1,6 +1,8 @@
 package br.com.ufs.sd.whatsupp.usuario;
 
+import java.io.IOException;
 import java.io.Serializable;
+import java.util.concurrent.TimeoutException;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
@@ -8,7 +10,9 @@ import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import br.com.ufs.sd.whatsupp.chat.ManipuladorDeMensagens;
 import br.com.ufs.sd.whatsupp.infra.WhatsuppException;
+import br.com.ufs.sd.whatsupp.rabbitmq.RabbitMQController;
 
 @Named
 @ViewScoped
@@ -19,6 +23,8 @@ public class LoginView implements Serializable {
 	private AuthenticationService authenticationService;
 	@Inject
 	private UserSessionView userSessionView;
+	@Inject
+	private RabbitMQController rabbitMQController;
 	
 	private String login;
 	private String senha;
@@ -43,8 +49,9 @@ public class LoginView implements Serializable {
 		try {
 			Usuario usuario = authenticationService.authenticate(login, senha);
 			userSessionView.setUsuario(usuario);
+			rabbitMQController.start(new ManipuladorDeMensagens(usuario.getLogin()));
 			return "/index.jsf?faces-redirect=true";
-		} catch (WhatsuppException e) {
+		} catch (WhatsuppException | IOException | TimeoutException e) {
 			e.printStackTrace();
 			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, e.getMessage(), ""));
 			return "/login.jsf";
@@ -53,6 +60,7 @@ public class LoginView implements Serializable {
 	
 	public String logout() {
 		authenticationService.unauthenticate();
+		rabbitMQController.stop();
 		return "/login.jsf?faces-redirect=true";
 	}
 }

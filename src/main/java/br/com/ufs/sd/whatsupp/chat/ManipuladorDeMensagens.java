@@ -1,10 +1,7 @@
 package br.com.ufs.sd.whatsupp.chat;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.Collections;
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
@@ -23,7 +20,7 @@ public class ManipuladorDeMensagens extends DefaultConsumer implements Runnable{
 	public ManipuladorDeMensagens(String login) throws IOException, TimeoutException {
 		super(RabbitMQ.getChannel(login));
 		this.login = login;
-		mensagensRecebidas = Collections.synchronizedList(new LinkedList());
+		mensagensRecebidas = Collections.synchronizedList(new LinkedList<Mensagem>());
 	}
 	
 	public List<Mensagem> getMensagensRecebidas() {
@@ -36,15 +33,11 @@ public class ManipuladorDeMensagens extends DefaultConsumer implements Runnable{
 	    RabbitMQ.send(mensagem.getDestinatario(), mensagemJSONString);
 	}
 
-	public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties,
-			byte[] body) throws IOException {
+	public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException {
 		String jsonString = new String(body, "UTF-8");
-		//System.out.println(" JSON RECEBIDA:'" + jsonString + "'");
-		
 	    Gson gson = new Gson();
 	    Mensagem msg = gson.fromJson(jsonString, Mensagem.class);
 	    getMensagensRecebidas().add(msg);
-	    
 	    System.out.println("@"+msg.getRemetente() +"> '" + msg.getMsg() + "'");
 	}
 	
@@ -55,32 +48,13 @@ public class ManipuladorDeMensagens extends DefaultConsumer implements Runnable{
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
 	}
 	
-	public static void main(String[] args) throws IOException, TimeoutException {
-		String login = "ana";
-		ManipuladorDeMensagens mm = new ManipuladorDeMensagens(login);
-		Thread t = new Thread(mm);
-		t.start();
-
-		
-		BufferedReader r = new BufferedReader(new InputStreamReader(System.in));
-		
-		while(true){
-			//System.out.print(login+">");
-			String mensagem = r.readLine();
-			
-			Mensagem msg = new Mensagem();
-			msg.setData(new Date());
-			msg.setMsg(mensagem);
-			msg.setDestinatario("will");
-			msg.setRemetente(login);
-			msg.setStatus(StatusMensagem.ENVIANDO);
-			mm.enviarMensagem(msg);
+	public void close() {
+		try {
+			this.getChannel().getConnection().close();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
-
-
-
 }

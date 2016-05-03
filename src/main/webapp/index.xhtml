@@ -9,6 +9,11 @@
 	<ui:define name="content">
 		<p:layoutUnit position="west" size="400">
 			<p:commandLink onclick="PF('contatosDlg').show(); return false;" value="Contatos"/>
+			<h:form>
+				<p:commandButton value="Send" action="#{chatView.send}" />
+				<p:commandButton value="Receive" action="#{chatView.receive}" />
+				<p:poll listener="#{chatView.receive}" />
+			</h:form>
 			<p:dataTable id="conversas">
 			</p:dataTable>
 		</p:layoutUnit>
