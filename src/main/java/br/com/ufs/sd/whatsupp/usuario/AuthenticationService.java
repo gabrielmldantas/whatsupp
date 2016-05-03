@@ -13,13 +13,12 @@ import javax.sql.DataSource;
 
 import org.apache.commons.codec.digest.DigestUtils;
 
-import br.com.ufs.sd.whatsupp.infra.RabbitChatDS;
 import br.com.ufs.sd.whatsupp.infra.WhatsuppException;
 
 public class AuthenticationService implements Serializable {
 	private static final long serialVersionUID = 1L;
 
-	@Inject @RabbitChatDS
+	@Inject
 	private DataSource dataSource;
 	
 	public Usuario authenticate(String login, String senha) {

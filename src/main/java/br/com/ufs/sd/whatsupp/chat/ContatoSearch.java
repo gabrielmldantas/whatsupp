@@ -11,14 +11,13 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.sql.DataSource;
 
-import br.com.ufs.sd.whatsupp.infra.RabbitChatDS;
 import br.com.ufs.sd.whatsupp.infra.WhatsuppException;
 import br.com.ufs.sd.whatsupp.usuario.Usuario;
 
 public class ContatoSearch implements Serializable {
 	private static final long serialVersionUID = 1L;
 
-	@Inject @RabbitChatDS
+	@Inject
 	private DataSource dataSource;
 	
 	public List<Usuario> getContatos(int idUsuario) {
