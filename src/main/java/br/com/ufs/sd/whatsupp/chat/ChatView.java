@@ -2,8 +2,12 @@ package br.com.ufs.sd.whatsupp.chat;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
 import javax.faces.application.FacesMessage;
@@ -32,14 +36,21 @@ public class ChatView implements Serializable {
 	@Inject
 	private RabbitMQController rabbitMQController;
 	
-	private List<Usuario> contatos;
+	private Map<String, Conversa> conversas;
 	private String loginNovoContato;
+	private Conversa conversaAtual;
+	private String textoMensagemEnvio;
 	
-	public List<Usuario> getContatos() {
-		if (contatos == null) {
-			contatos = contatoSearch.getContatos(userSessionView.getUsuario().getId());
+	public List<Conversa> getConversas() {
+		if (conversas == null) {
+			conversas = new HashMap<>();
+			List<Usuario> contatos = contatoSearch.getContatos(userSessionView.getUsuario().getId());
+			for (Usuario contato : contatos) {
+				Conversa conversa = new Conversa(contato, new LinkedList<Mensagem>());
+				conversas.put(contato.getLogin(), conversa);
+			}
 		}
-		return contatos;
+		return new ArrayList<>(conversas.values()); //TODO melhorar isso aqui
 	}
 	
 	public String getLoginNovoContato() {
@@ -54,7 +65,7 @@ public class ChatView implements Serializable {
 		try {
 			usuarioService.adicionarContato(userSessionView.getUsuario().getId(), loginNovoContato);
 			loginNovoContato = null;
-			contatos = null;
+			conversas = null;
 		} catch (WhatsuppException e) {
 			e.printStackTrace();
 			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, e.getMessage(), ""));
@@ -62,11 +73,33 @@ public class ChatView implements Serializable {
 	}
 	
 	public void send() throws IOException, TimeoutException {
-		Mensagem mensagem = new Mensagem("teste", StatusMensagem.ENVIANDO, new Date(), "will", "gabriel");
+		Mensagem mensagem = new Mensagem(textoMensagemEnvio, StatusMensagem.ENVIANDO, new Date(), userSessionView.getUsuario().getLogin(), conversaAtual.getDestinatario().getLogin());
 		rabbitMQController.getManipuladorDeMensagens().enviarMensagem(mensagem);
 	}
 	
 	public void receive() {
-		FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, rabbitMQController.getManipuladorDeMensagens().getMensagensRecebidas().toString(), ""));
+		List<Mensagem> mensagens = new ArrayList<>(rabbitMQController.getManipuladorDeMensagens().getMensagensRecebidas());
+		if (!mensagens.isEmpty()) {
+			rabbitMQController.getManipuladorDeMensagens().getMensagensRecebidas().clear();
+		}
+		for (Mensagem mensagem : mensagens) {
+			conversas.get(mensagem.getRemetente()).getMensagens().add(0, mensagem);
+		}
+	}
+	
+	public Conversa getConversaAtual() {
+		return conversaAtual;
+	}
+	
+	public void setConversaAtual(Conversa conversaAtual) {
+		this.conversaAtual = conversaAtual;
+	}
+	
+	public String getTextoMensagemEnvio() {
+		return textoMensagemEnvio;
+	}
+	
+	public void setTextoMensagemEnvio(String textoMensagemEnvio) {
+		this.textoMensagemEnvio = textoMensagemEnvio;
 	}
 }

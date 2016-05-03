@@ -8,35 +8,31 @@
 
 	<ui:define name="content">
 		<p:layoutUnit position="west" size="400">
-			<p:commandLink onclick="PF('contatosDlg').show(); return false;" value="Contatos"/>
-			<h:form>
-				<p:commandButton value="Send" action="#{chatView.send}" />
-				<p:commandButton value="Receive" action="#{chatView.receive}" />
-				<p:poll listener="#{chatView.receive}" />
+			<h:graphicImage library="img" name="add-contact.png" style="cursor: pointer" onclick="PF('adicionarContatoDlg').show();"/>
+			<h:form id="formConversas">
+				<h:inputText id="texto" value="#{chatView.textoMensagemEnvio}" />
+				<p:commandButton process="@this texto" value="Teste" action="#{chatView.send}" />
+				<p:dataTable id="conversas" value="#{chatView.conversas}" var="row" selectionMode="single" selection="#{chatView.conversaAtual}"
+					rowKey="#{row.destinatario.id}">
+					<f:facet name="header">Conversas</f:facet>
+					<p:column>
+						<h:outputText value="#{row.destinatario.nome}" />
+					</p:column>
+					<p:column>
+						<h:outputText value="#{row.mensagens[0].msg}" rendered="#{not empty row.mensagens}"/>
+					</p:column>
+				</p:dataTable>
+				<p:poll listener="#{chatView.receive}" interval="2" update="conversas"/>
 			</h:form>
-			<p:dataTable id="conversas">
-			</p:dataTable>
 		</p:layoutUnit>
 		<p:layoutUnit position="center">
 		</p:layoutUnit>
-		
-		<p:dialog header="Contatos" widgetVar="contatosDlg" modal="true" height="400" width="300">
-			<h:form id="formContatos">
-				<h:graphicImage library="img" name="add-contact.png" style="cursor: pointer" onclick="PF('adicionarContatoDlg').show();"/>
-				<p:dataTable value="#{chatView.contatos}" var="row">
-					<f:facet name="header"></f:facet>
-					<p:column filterBy="#{row.nome}">
-						<h:outputText value="#{row.nome}" />
-					</p:column>
-				</p:dataTable>
-			</h:form>
-		</p:dialog>
 		
 		<p:dialog header="Adicionar Contato" widgetVar="adicionarContatoDlg" modal="true" height="200" width="300">
 			<h:form>
 				<h:outputLabel for="login" value="Usuário" />
 				<p:inputText id="login" label="Usuário" value="#{chatView.loginNovoContato}" required="true" style="display: block"/>
-				<p:commandButton value="Adicionar" action="#{chatView.adicionarContato}" update="@form :conversas :formContatos" /> 
+				<p:commandButton value="Adicionar" action="#{chatView.adicionarContato}" update="@form :formConversas" /> 
 			</h:form>
 		</p:dialog>
 	</ui:define>

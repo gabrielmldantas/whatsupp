@@ -2,11 +2,11 @@ package br.com.ufs.sd.whatsupp.rabbitmq;
 
 import java.io.Serializable;
 
-import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.SessionScoped;
 
 import br.com.ufs.sd.whatsupp.chat.ManipuladorDeMensagens;
 
-@ApplicationScoped
+@SessionScoped
 public class RabbitMQController implements Serializable {
 	private static final long serialVersionUID = 1L;
 

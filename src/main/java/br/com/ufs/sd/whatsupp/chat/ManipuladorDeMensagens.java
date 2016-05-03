@@ -44,7 +44,7 @@ public class ManipuladorDeMensagens extends DefaultConsumer implements Runnable{
 	@Override
 	public void run() {
 		try {
-			this.getChannel().basicConsume(this.login, true, this);
+			this.getChannel().basicConsume(login, true, this);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
