@@ -5,6 +5,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.inject.Inject;
 import javax.sql.DataSource;
@@ -73,6 +75,52 @@ public class UsuarioService implements Serializable {
 			ps.setInt(1, idUsuario);
 			ps.setInt(2, idContato);
 			ps.executeUpdate();
+			ps.setInt(1, idContato);
+			ps.setInt(2, idUsuario);
+			ps.executeUpdate();
+		} catch (SQLException e) {
+			throw new WhatsuppException(e);
+		}
+	}
+	
+	public Usuario getUsuario(String login) {
+		try (Connection connection = dataSource.getConnection()) {
+			PreparedStatement ps = connection.prepareStatement("SELECT * FROM tb_usuario WHERE ds_login = ?");
+			ps.setString(1, login);
+			ResultSet rs = ps.executeQuery();
+			Usuario usuario = null;
+			if (rs.next()) {
+				usuario = new Usuario();
+				usuario.setId(rs.getInt("id_usuario"));
+				usuario.setLogin(rs.getString("ds_login"));
+				usuario.setNome(rs.getString("nm_usuario"));
+			}
+			rs.close();
+			ps.close();
+			return usuario;
+		} catch (SQLException e) {
+			throw new WhatsuppException(e);
+		}
+	}
+	
+	public List<Usuario> getContatos(String login) {
+		try (Connection connection = dataSource.getConnection()) {
+			PreparedStatement ps = connection.prepareStatement("SELECT u.* FROM tb_usuario u "
+					+ " INNER JOIN tb_contato c ON (c.id_contato = u.id_usuario) "
+					+ " WHERE c.id_usuario = (SELECT us.id_usuario FROM tb_usuario us WHERE us.ds_login = ?)");
+			ps.setString(1, login);
+			ResultSet rs = ps.executeQuery();
+			List<Usuario> contatos = new ArrayList<>();
+			while (rs.next()) {
+				Usuario usuario = new Usuario();
+				usuario.setId(rs.getInt("id_usuario"));
+				usuario.setLogin(rs.getString("ds_login"));
+				usuario.setNome(rs.getString("nm_usuario"));
+				contatos.add(usuario);
+			}
+			rs.close();
+			ps.close();
+			return contatos;
 		} catch (SQLException e) {
 			throw new WhatsuppException(e);
 		}
