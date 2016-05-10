@@ -29,7 +29,7 @@ public class RabbitMQ {
 	public static Channel getChannel(String queue) throws IOException, TimeoutException {
 	    Connection connection = factory.newConnection();
 	    Channel channel = connection.createChannel();
-	    channel.queueDeclare(queue, false, false, false, null);
+	    channel.queueDeclare(queue, true, false, false, null);
 	    return channel;
 	}
 	

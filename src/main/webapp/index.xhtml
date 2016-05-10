@@ -10,22 +10,37 @@
 		<p:layoutUnit position="west" size="400">
 			<h:graphicImage library="img" name="add-contact.png" style="cursor: pointer" onclick="PF('adicionarContatoDlg').show();"/>
 			<h:form id="formConversas">
-				<h:inputText id="texto" value="#{chatView.textoMensagemEnvio}" />
-				<p:commandButton process="@this texto" value="Teste" action="#{chatView.send}" />
 				<p:dataTable id="conversas" value="#{chatView.conversas}" var="row" selectionMode="single" selection="#{chatView.conversaAtual}"
 					rowKey="#{row.destinatario.id}">
 					<f:facet name="header">Conversas</f:facet>
-					<p:column>
+					<p:ajax event="rowSelect" update="conversas :chatPanel" />
+					<p:column filterBy="#{row.destinatario.nome}">
 						<h:outputText value="#{row.destinatario.nome}" />
 					</p:column>
-					<p:column>
-						<h:outputText value="#{row.mensagens[0].msg}" rendered="#{not empty row.mensagens}"/>
-					</p:column>
 				</p:dataTable>
-				<p:poll listener="#{chatView.receive}" interval="2" update="conversas"/>
+				<p:poll listener="#{chatView.receive}" interval="2" update="conversas :mensagens"/>
 			</h:form>
 		</p:layoutUnit>
 		<p:layoutUnit position="center">
+			<p:outputPanel id="chatPanel">
+				<p:outputPanel id="mensagens" style="bottom: 120px; top: 0px; width: 100%; position: absolute; border-bottom: 1px solid gray; overflow-y: auto">
+					<ui:fragment rendered="#{not empty chatView.conversaAtual}">
+						<ui:repeat var="row" value="#{chatView.conversaAtual.mensagens}">
+							<div style="margin-top: 10px">
+								<div style="font-style: italic;">#{row.remetente} diz (em #{row.dataFormatada})</div>
+								<div>#{row.msg}</div>
+							</div>
+						</ui:repeat>
+					</ui:fragment>
+				</p:outputPanel>
+				<div style="bottom: 30px; width: 80%; position: absolute">
+					<h:form rendered="#{not empty chatView.conversaAtual}">
+						<p:inputTextarea id="texto" value="#{chatView.textoMensagemEnvio}" style="width: 80%; float: left" />
+						<p:commandButton process="@this texto" value="Enviar" action="#{chatView.send}" style="margin-left: 10px" 
+							update=":chatPanel"/>
+					</h:form>
+				</div>
+			</p:outputPanel>
 		</p:layoutUnit>
 		
 		<p:dialog header="Adicionar Contato" widgetVar="adicionarContatoDlg" modal="true" height="200" width="300">

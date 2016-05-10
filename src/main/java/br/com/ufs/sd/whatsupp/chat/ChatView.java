@@ -73,8 +73,12 @@ public class ChatView implements Serializable {
 	}
 	
 	public void send() throws IOException, TimeoutException {
-		Mensagem mensagem = new Mensagem(textoMensagemEnvio, StatusMensagem.ENVIANDO, new Date(), userSessionView.getUsuario().getLogin(), conversaAtual.getDestinatario().getLogin());
-		rabbitMQController.getManipuladorDeMensagens().enviarMensagem(mensagem);
+		if (textoMensagemEnvio != null && !textoMensagemEnvio.isEmpty()) {
+			Mensagem mensagem = new Mensagem(textoMensagemEnvio, StatusMensagem.ENVIANDO, new Date(), userSessionView.getUsuario().getLogin(), conversaAtual.getDestinatario().getLogin());
+			rabbitMQController.getManipuladorDeMensagens().enviarMensagem(mensagem);
+			textoMensagemEnvio = "";
+			conversaAtual.getMensagens().add(mensagem);
+		}
 	}
 	
 	public void receive() {
@@ -83,7 +87,7 @@ public class ChatView implements Serializable {
 			rabbitMQController.getManipuladorDeMensagens().getMensagensRecebidas().clear();
 		}
 		for (Mensagem mensagem : mensagens) {
-			conversas.get(mensagem.getRemetente()).getMensagens().add(0, mensagem);
+			conversas.get(mensagem.getRemetente()).getMensagens().add(mensagem);
 		}
 	}
 	

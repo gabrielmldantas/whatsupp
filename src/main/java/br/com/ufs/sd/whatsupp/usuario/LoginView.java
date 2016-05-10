@@ -54,6 +54,8 @@ public class LoginView implements Serializable {
 		} catch (WhatsuppException | IOException | TimeoutException e) {
 			e.printStackTrace();
 			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, e.getMessage(), ""));
+			userSessionView.setUsuario(null);
+			authenticationService.unauthenticate();
 			return "/login.jsf";
 		}
 	}

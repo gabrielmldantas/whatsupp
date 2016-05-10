@@ -1,6 +1,7 @@
 package br.com.ufs.sd.whatsupp.chat;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class Mensagem implements Serializable {
@@ -54,6 +55,10 @@ public class Mensagem implements Serializable {
 	}
 	public void setDestinatario(String destinatario) {
 		this.destinatario = destinatario;
+	}
+	
+	public String getDataFormatada() {
+		return new SimpleDateFormat("dd/MM/yyyy HH:mm").format(data);
 	}
 	
 }
