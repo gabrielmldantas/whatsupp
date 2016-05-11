@@ -3,6 +3,8 @@ package br.com.ufs.sd.whatsupp.chat;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -36,21 +38,42 @@ public class ChatView implements Serializable {
 	@Inject
 	private RabbitMQController rabbitMQController;
 	
-	private Map<String, Conversa> conversas;
+	private Map<String, Conversa> conversas = new HashMap<>();
 	private String loginNovoContato;
 	private Conversa conversaAtual;
 	private String textoMensagemEnvio;
+	private boolean reloadConversas = true;
+	private List<Conversa> conversasOrdenadas;
 	
 	public List<Conversa> getConversas() {
-		if (conversas == null) {
-			conversas = new HashMap<>();
+		if (reloadConversas) {
 			List<Usuario> contatos = contatoSearch.getContatos(userSessionView.getUsuario().getId());
 			for (Usuario contato : contatos) {
-				Conversa conversa = new Conversa(contato, new LinkedList<Mensagem>());
-				conversas.put(contato.getLogin(), conversa);
+				if (!conversas.containsKey(contato.getLogin())) {
+					Conversa conversa = new Conversa(contato, new LinkedList<Mensagem>());
+					conversas.put(contato.getLogin(), conversa);
+				}
 			}
+			reloadConversas = false;
+			conversasOrdenadas = new ArrayList<>(conversas.values());
+			Collections.sort(conversasOrdenadas, new Comparator<Conversa>() {
+				@Override
+				public int compare(Conversa o1, Conversa o2) {
+					if (o1.getDataUltimaMensagem() == null && o2.getDataUltimaMensagem() == null) {
+						return o1.getDestinatario().getNome().compareTo(o2.getDestinatario().getNome());
+					}
+					if (o1.getDataUltimaMensagem() != null && o2.getDataUltimaMensagem() != null) {
+						return o2.getDataUltimaMensagem().compareTo(o1.getDataUltimaMensagem());
+					}
+					if (o1.getDataUltimaMensagem() != null) {
+						return -1;
+					}
+					return 1;
+					
+				}
+			});
 		}
-		return new ArrayList<>(conversas.values()); //TODO melhorar isso aqui
+		return conversasOrdenadas;
 	}
 	
 	public String getLoginNovoContato() {
@@ -65,7 +88,7 @@ public class ChatView implements Serializable {
 		try {
 			usuarioService.adicionarContato(userSessionView.getUsuario().getId(), loginNovoContato);
 			loginNovoContato = null;
-			conversas = null;
+			reloadConversas = true;
 		} catch (WhatsuppException e) {
 			e.printStackTrace();
 			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, e.getMessage(), ""));
@@ -76,7 +99,8 @@ public class ChatView implements Serializable {
 		if (textoMensagemEnvio != null && !textoMensagemEnvio.isEmpty()) {
 			Mensagem mensagem = new Mensagem(textoMensagemEnvio, StatusMensagem.ENVIANDO, new Date(), userSessionView.getUsuario().getLogin(), conversaAtual.getDestinatario().getLogin());
 			rabbitMQController.getManipuladorDeMensagens().enviarMensagem(mensagem);
-			textoMensagemEnvio = "";
+			textoMensagemEnvio = null;
+			mensagem.setMsg(mensagem.getMsg().replace("\r\n", "<br>").replace("\n", "<br>"));
 			conversaAtual.getMensagens().add(mensagem);
 		}
 	}
@@ -87,8 +111,13 @@ public class ChatView implements Serializable {
 			rabbitMQController.getManipuladorDeMensagens().getMensagensRecebidas().clear();
 		}
 		for (Mensagem mensagem : mensagens) {
-			conversas.get(mensagem.getRemetente()).getMensagens().add(mensagem);
+			mensagem.setMsg(mensagem.getMsg().replace("\r\n", "<br>").replace("\n", "<br>"));
+			Conversa conversa = conversas.get(mensagem.getRemetente());
+			conversa.getMensagens().add(mensagem);
+			conversa.setDataUltimaMensagem(new Date());
+			conversa.setTudoLido(false);
 		}
+		reloadConversas = true;
 	}
 	
 	public Conversa getConversaAtual() {
@@ -97,6 +126,10 @@ public class ChatView implements Serializable {
 	
 	public void setConversaAtual(Conversa conversaAtual) {
 		this.conversaAtual = conversaAtual;
+		if (this.conversaAtual != null) {
+			this.conversaAtual.setTudoLido(true);
+		}
+		this.textoMensagemEnvio = null;
 	}
 	
 	public String getTextoMensagemEnvio() {

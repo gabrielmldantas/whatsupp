@@ -15,29 +15,32 @@
 					<f:facet name="header">Conversas</f:facet>
 					<p:ajax event="rowSelect" update="conversas :chatPanel" />
 					<p:column filterBy="#{row.destinatario.nome}">
-						<h:outputText value="#{row.destinatario.nome}" />
+						<h:outputText value="#{row.destinatario.nome}" style="#{row.tudoLido ? '' : 'font-weight: bold'}" />
 					</p:column>
 				</p:dataTable>
-				<p:poll listener="#{chatView.receive}" interval="2" update="conversas :mensagens"/>
+				<p:poll listener="#{chatView.receive}" interval="2" update="conversas :mensagens"
+				    oncomplete="document.getElementById('mensagensPanel').scrollTop = document.getElementById('mensagensPanel').scrollHeight"/>
 			</h:form>
 		</p:layoutUnit>
 		<p:layoutUnit position="center">
 			<p:outputPanel id="chatPanel">
-				<p:outputPanel id="mensagens" style="bottom: 120px; top: 0px; width: 100%; position: absolute; border-bottom: 1px solid gray; overflow-y: auto">
-					<ui:fragment rendered="#{not empty chatView.conversaAtual}">
-						<ui:repeat var="row" value="#{chatView.conversaAtual.mensagens}">
-							<div style="margin-top: 10px">
-								<div style="font-style: italic;">#{row.remetente} diz (em #{row.dataFormatada})</div>
-								<div>#{row.msg}</div>
-							</div>
-						</ui:repeat>
-					</ui:fragment>
+				<p:outputPanel id="mensagensPanel" style="bottom: 120px; top: 0px; width: 90%; position: absolute; border-bottom: 1px solid gray; overflow-y: auto">
+					<p:outputPanel id="mensagens">
+					   <ui:fragment rendered="#{not empty chatView.conversaAtual}">
+	                       <ui:repeat var="row" value="#{chatView.conversaAtual.mensagens}">
+	                           <div style="margin-top: 10px">
+	                               <div style="font-style: italic;">#{row.remetente} diz (em #{row.dataFormatada})</div>
+	                               <div><h:outputText value="#{row.msg}" escape="false" /></div>
+	                           </div>
+	                       </ui:repeat>
+	                   </ui:fragment>
+					</p:outputPanel>
 				</p:outputPanel>
 				<div style="bottom: 30px; width: 80%; position: absolute">
 					<h:form rendered="#{not empty chatView.conversaAtual}">
 						<p:inputTextarea id="texto" value="#{chatView.textoMensagemEnvio}" style="width: 80%; float: left" />
 						<p:commandButton process="@this texto" value="Enviar" action="#{chatView.send}" style="margin-left: 10px" 
-							update=":chatPanel"/>
+							update="@form :mensagens" oncomplete="document.getElementById('mensagensPanel').scrollTop = document.getElementById('mensagensPanel').scrollHeight"/>
 					</h:form>
 				</div>
 			</p:outputPanel>
@@ -47,7 +50,8 @@
 			<h:form>
 				<h:outputLabel for="login" value="Usuário" />
 				<p:inputText id="login" label="Usuário" value="#{chatView.loginNovoContato}" required="true" style="display: block"/>
-				<p:commandButton value="Adicionar" action="#{chatView.adicionarContato}" update="@form :formConversas" /> 
+				<p:commandButton value="Adicionar" action="#{chatView.adicionarContato}" update="@form :formConversas" 
+				    oncomplete="PF('adicionarContatoDlg').hide()"/> 
 			</h:form>
 		</p:dialog>
 	</ui:define>

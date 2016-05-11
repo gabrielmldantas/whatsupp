@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.concurrent.TimeoutException;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.DefaultConsumer;
 import com.rabbitmq.client.Envelope;
@@ -28,14 +29,14 @@ public class ManipuladorDeMensagens extends DefaultConsumer implements Runnable{
 	}
 	
 	public void enviarMensagem(Mensagem mensagem) throws IOException, TimeoutException{
-		Gson gson = new Gson();
+		Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ssX").create();
 		String mensagemJSONString = gson.toJson(mensagem);
 	    RabbitMQ.send(mensagem.getDestinatario(), mensagemJSONString);
 	}
 
 	public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException {
 		String jsonString = new String(body, "UTF-8");
-	    Gson gson = new Gson();
+		Gson gson = new Gson();
 	    Mensagem msg = gson.fromJson(jsonString, Mensagem.class);
 	    getMensagensRecebidas().add(msg);
 	    System.out.println("@"+msg.getRemetente() +"> '" + msg.getMsg() + "'");
